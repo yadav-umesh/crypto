@@ -1,0 +1,1871 @@
+#############LAB1 CAESAR CIPHER#################
+          ###########ATTACK KNOWN TEXT##############
+"""
+This program cracks the KEY,
+    GIVEN: Algorithm, Cipher, Encrypted
+"""
+
+
+def Encrypt(K, P):
+    cipher = []
+    for letter in P:
+        cipher.append(chr((ord(letter) - 65 + K) % 26 + 65))
+    return "".join(cipher)
+
+
+def Crack(C, P):
+    key = -1
+    while key <= 25:
+        key += 1
+        if C == Encrypt(key, P):
+            break
+    return key
+
+
+def main():
+    cipher = input("Enter Cipher Text: ")
+    plain = input("Enter Plain Text: ")
+    key = Crack(cipher, plain)
+    print("Key =", key)
+
+
+if __name__ == "__main__":
+    main()
+	
+	
+	
+	###########CAESAR CIPHER DECRYPT####################
+	#!/usr/bin/python3
+
+
+def disp(K):
+    for i in range(0, 25):
+        print(chr(i + 65), end=" ")
+
+    print()
+    for i in range(0, 25):
+        print(chr((i + K) % 26 + 65), end=" ")
+
+    print()
+
+
+def Decypt(K, P):
+    cipher = []
+    for letter in P:
+        cipher.append(chr((ord(letter) - 65 - K) % 26 + 65))
+    return "".join(cipher)
+
+
+def main():
+    print("Ceaser Cipher Decryption Alg")
+    key = int(input("Enter Key: "))
+    disp(key)
+    plain_text = input("Enter Plain Text: ").upper().replace(" ", "")
+    cipher_text = Decypt(key, plain_text)
+    print(cipher_text)
+
+
+if __name__ == "__main__":
+    main()
+	
+	
+	
+	##################CAESAR CIPHER ENCRYPT######################
+	#!/usr/bin/python3
+
+
+def Encrypt(K, P):
+    cipher = []
+    for letter in P:
+        cipher.append(chr((ord(letter) - 65 + K) % 26 + 65))
+    return "".join(cipher)
+
+
+def disp(K):
+    for i in range(0, 25):
+        print(chr(i + 65), end=" ")
+
+    print()
+    for i in range(0, 25):
+        print(chr((i + K) % 26 + 65), end=" ")
+
+    print()
+
+
+def main():
+    print("Ceaser Cipher Encryption Alg")
+    key = int(input("Enter Key: "))
+    disp(key)
+    plain_text = input("Enter Plain Text: ").upper()
+    cipher_text = Encrypt(key, plain_text)
+    print(cipher_text)
+
+
+if __name__ == "__main__":
+    main()
+	
+	
+	
+	
+	############AFFINE CIPHER########################
+	
+	#!/usr/bin/python3
+"""
+Implementation of Affine Cipher
+"""
+
+# Extended Euclidean Algorithm for finding modular inverse
+# eg: modinv(7, 26) = 15
+def egcd(a, b):
+    x, y, u, v = 0, 1, 1, 0
+    while a != 0:
+        q, r = b // a, b % a
+        m, n = x - u * q, y - v * q
+        b, a, x, y, u, v = a, r, u, v, m, n
+    gcd = b
+    return gcd, x, y
+
+
+def modinv(a, m):
+    # gcd, x, y = egcd(a, m)
+    gcd, x, _ = egcd(a, m)
+    if gcd != 1:
+        return None  # modular inverse does not exist
+    else:
+        return x % m
+
+
+def Encrypt(K, P):
+    """Encrypts PlainText with given Key and return the Cipher
+    """
+    P = [ord(x) - 65 for x in list(P)]
+    C = [(K[0] * x + K[1]) % 26 for x in P]
+    C = [chr(x + 65) for x in C]
+    C = "".join(C)
+    return C
+
+
+def Decrypt(K, C):
+    """Decrypts Cipher to Plaintext with given Key
+    """
+    C = [ord(x) - 65 for x in list(C)]
+    P = [((x - K[1]) * modinv(K[0], 26)) % 26 for x in C]
+    P = [chr(x + 65) for x in P]
+    P = "".join(P)
+    return P
+	
+	############KNOWN CIPHERTEXT ATTACK AFFINE CIPHER##############
+	#!/usr/bin/python3
+from AffineCipher import Encrypt, modinv
+from math import floor
+
+
+def Crack(P, C):
+    P = [ord(x) - 65 for x in list(P)]
+    C = [ord(x) - 65 for x in list(C)]
+    print(P, C)
+    a = (C[0] - C[1]) / (P[0] - P[1])
+    b = (P[0] * C[1] - C[0] * P[1]) / (P[0] - P[1])
+    key = [a, b]
+    key = (int(a), int(b))
+    key = [(x + 26) % 26 for x in key]
+    return key
+
+
+def main():
+    print("Known Cipher Text Attack in AffineCipher")
+    P = input("Enter PlainText: ").upper()
+    C = input("Enter CipherText: ").upper()
+    key = Crack(P, C)
+    print(key)
+
+
+if __name__ == "__main__":
+    main()
+
+	
+####################MAIN AFFINE#################
+	
+	#!/usr/bin/python3
+from sys import exit
+from AffineCipher import Encrypt, Decrypt
+
+msg = """
+Choose an Option:
+    0. exit
+    1. Encrypt
+    2. Decrypt
+>> """
+
+
+def main():
+    key = input("Enter the key (a, b): ").split(",")
+    key = [int(x) for x in key]
+    print(key)
+    while True:
+        option = int(input(msg))
+        if option == 0:
+            exit(0)
+        elif option == 1:
+            P = input("Enter PlainText: ").upper()
+            C = Encrypt(key, P)
+            print("CipherText =", C)
+        elif option == 2:
+            C = input("Enter CipherText: ").upper()
+            P = Decrypt(key, C)
+            print("PlainText =", P)
+        else:
+            print("Choose correct option!")
+
+
+if __name__ == "__main__":
+    main()
+	
+	
+	
+	####################LAB3 RC4#######################
+	#!/usr/bin/env python3
+# Will use codecs, as 'str' object in Python 3 doesn't have any attribute 'decode'
+import codecs
+
+MOD = 256
+
+
+def KSA(key):
+    ''' Key Scheduling Algorithm (from wikipedia):
+        for i from 0 to 255
+            S[i] := i
+        endfor
+        j := 0
+        for i from 0 to 255
+            j := (j + S[i] + key[i mod keylength]) mod 256
+            swap values of S[i] and S[j]
+        endfor
+    '''
+    key_length = len(key)
+    # create the array "S"
+    S = list(range(MOD))  # [0,1,2, ... , 255]
+    j = 0
+    for i in range(MOD):
+        j = (j + S[i] + key[i % key_length]) % MOD
+        S[i], S[j] = S[j], S[i]  # swap values
+
+    return S
+
+
+def PRGA(S):
+    ''' Psudo Random Generation Algorithm (from wikipedia):
+        i := 0
+        j := 0
+        while GeneratingOutput:
+            i := (i + 1) mod 256
+            j := (j + S[i]) mod 256
+            swap values of S[i] and S[j]
+            K := S[(S[i] + S[j]) mod 256]
+            output K
+        endwhile
+    '''
+    i = 0
+    j = 0
+    while True:
+        i = (i + 1) % MOD
+        j = (j + S[i]) % MOD
+
+        S[i], S[j] = S[j], S[i]  # swap values
+        K = S[(S[i] + S[j]) % MOD]
+        yield K
+
+
+def get_keystream(key):
+    ''' Takes the encryption key to get the keystream using PRGA
+        return object is a generator
+    '''
+    S = KSA(key)
+    return PRGA(S)
+
+
+def encrypt_logic(key, text):
+    ''' :key -> encryption key used for encrypting, as hex string
+        :text -> array of unicode values/ byte string to encrpyt/decrypt
+    '''
+    # For plaintext key, use this
+    key = [ord(c) for c in key]
+    # If key is in hex:
+    # key = codecs.decode(key, 'hex_codec')
+    # key = [c for c in key]
+    keystream = get_keystream(key)
+
+    res = []
+    for c in text:
+        val = ("%02X" % (c ^ next(keystream)))  # XOR and taking hex
+        res.append(val)
+    return ''.join(res)
+
+
+def encrypt(key, plaintext):
+    ''' :key -> encryption key used for encrypting, as hex string
+        :plaintext -> plaintext string to encrpyt
+    '''
+    plaintext = [ord(c) for c in plaintext]
+    return encrypt_logic(key, plaintext)
+
+
+def decrypt(key, ciphertext):
+    ''' :key -> encryption key used for encrypting, as hex string
+        :ciphertext -> hex encoded ciphered text using RC4
+    '''
+    ciphertext = codecs.decode(ciphertext, 'hex_codec')
+    res = encrypt_logic(key, ciphertext)
+    return codecs.decode(res, 'hex_codec').decode('utf-8')
+
+
+def main():
+
+    key = input('Enter Key: ').upper() # 'not-so-random-key'  # plaintext
+    plaintext = input('Enter Plain Text: ').upper() # 'Good work! Your implementation is correct'  # plaintext
+    # encrypt the plaintext, using key and RC4 algorithm
+    ciphertext = encrypt(key, plaintext)
+    print('plaintext:', plaintext)
+    print('key:', key)
+    print('ciphertext:', ciphertext)
+    # ..
+    # Let's check the implementation
+    # ..
+    # ciphertext = '2D7FEE79FFCE80B7DDB7BDA5A7F878CE298615'\
+    #    '476F86F3B890FD4746BE2D8F741395F884B4A35CE979'
+    # change ciphertext to string again
+    decrypted = decrypt(key, ciphertext)
+    print('decrypted:', decrypted)
+
+    if plaintext == decrypted:
+        print('\nBoth Matched!')
+    else:
+        print('OOPS! Both didn\'t match')
+
+    # until next time folks !
+
+
+def test():
+
+    # Test case 1
+    # key = '4B6579' # 'Key' in hex
+    # key = 'Key'
+    # plaintext = 'Plaintext'
+    # ciphertext = 'BBF316E8D940AF0AD3'
+    assert(encrypt('Key', 'Plaintext')) == 'BBF316E8D940AF0AD3'
+    assert(decrypt('Key', 'BBF316E8D940AF0AD3')) == 'Plaintext'
+
+    # Test case 2
+    # key = 'Wiki' # '57696b69'in hex
+    # plaintext = 'pedia'
+    # ciphertext should be 1021BF0420
+    assert(encrypt('Wiki', 'pedia')) == '1021BF0420'
+    assert(decrypt('Wiki', '1021BF0420')) == 'pedia'
+
+    # Test case 3
+    # key = 'Secret' # '536563726574' in hex
+    # plaintext = 'Attack at dawn'
+    # ciphertext should be 45A01F645FC35B383552544B9BF5
+    assert(encrypt('Secret',
+                   'Attack at dawn')) == '45A01F645FC35B383552544B9BF5'
+    assert(decrypt('Secret',
+                   '45A01F645FC35B383552544B9BF5')) == 'Attack at dawn'
+
+if __name__ == '__main__':
+    main()
+	
+	
+	
+	############LAB5 DES##########################
+	#!/usr/bin/python3
+
+#Initial permut matrix for the datas
+PI = [58, 50, 42, 34, 26, 18, 10, 2,
+      60, 52, 44, 36, 28, 20, 12, 4,
+      62, 54, 46, 38, 30, 22, 14, 6,
+      64, 56, 48, 40, 32, 24, 16, 8,
+      57, 49, 41, 33, 25, 17, 9, 1,
+      59, 51, 43, 35, 27, 19, 11, 3,
+      61, 53, 45, 37, 29, 21, 13, 5,
+      63, 55, 47, 39, 31, 23, 15, 7]
+
+#Initial permut made on the key
+CP_1 = [57, 49, 41, 33, 25, 17, 9,
+        1, 58, 50, 42, 34, 26, 18,
+        10, 2, 59, 51, 43, 35, 27,
+        19, 11, 3, 60, 52, 44, 36,
+        63, 55, 47, 39, 31, 23, 15,
+        7, 62, 54, 46, 38, 30, 22,
+        14, 6, 61, 53, 45, 37, 29,
+        21, 13, 5, 28, 20, 12, 4]
+
+#Permut applied on shifted key to get Ki+1
+CP_2 = [14, 17, 11, 24, 1, 5, 3, 28,
+        15, 6, 21, 10, 23, 19, 12, 4,
+        26, 8, 16, 7, 27, 20, 13, 2,
+        41, 52, 31, 37, 47, 55, 30, 40,
+        51, 45, 33, 48, 44, 49, 39, 56,
+        34, 53, 46, 42, 50, 36, 29, 32]
+
+#Expand matrix to get a 48bits matrix of datas to apply the xor with Ki
+E = [32, 1, 2, 3, 4, 5,
+     4, 5, 6, 7, 8, 9,
+     8, 9, 10, 11, 12, 13,
+     12, 13, 14, 15, 16, 17,
+     16, 17, 18, 19, 20, 21,
+     20, 21, 22, 23, 24, 25,
+     24, 25, 26, 27, 28, 29,
+     28, 29, 30, 31, 32, 1]
+
+#SBOX
+S_BOX = [
+         
+[[14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
+ [0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8],
+ [4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0],
+ [15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13],
+],
+
+[[15, 1, 8, 14, 6, 11, 3, 4, 9, 7, 2, 13, 12, 0, 5, 10],
+ [3, 13, 4, 7, 15, 2, 8, 14, 12, 0, 1, 10, 6, 9, 11, 5],
+ [0, 14, 7, 11, 10, 4, 13, 1, 5, 8, 12, 6, 9, 3, 2, 15],
+ [13, 8, 10, 1, 3, 15, 4, 2, 11, 6, 7, 12, 0, 5, 14, 9],
+],
+
+[[10, 0, 9, 14, 6, 3, 15, 5, 1, 13, 12, 7, 11, 4, 2, 8],
+ [13, 7, 0, 9, 3, 4, 6, 10, 2, 8, 5, 14, 12, 11, 15, 1],
+ [13, 6, 4, 9, 8, 15, 3, 0, 11, 1, 2, 12, 5, 10, 14, 7],
+ [1, 10, 13, 0, 6, 9, 8, 7, 4, 15, 14, 3, 11, 5, 2, 12],
+],
+
+[[7, 13, 14, 3, 0, 6, 9, 10, 1, 2, 8, 5, 11, 12, 4, 15],
+ [13, 8, 11, 5, 6, 15, 0, 3, 4, 7, 2, 12, 1, 10, 14, 9],
+ [10, 6, 9, 0, 12, 11, 7, 13, 15, 1, 3, 14, 5, 2, 8, 4],
+ [3, 15, 0, 6, 10, 1, 13, 8, 9, 4, 5, 11, 12, 7, 2, 14],
+],  
+
+[[2, 12, 4, 1, 7, 10, 11, 6, 8, 5, 3, 15, 13, 0, 14, 9],
+ [14, 11, 2, 12, 4, 7, 13, 1, 5, 0, 15, 10, 3, 9, 8, 6],
+ [4, 2, 1, 11, 10, 13, 7, 8, 15, 9, 12, 5, 6, 3, 0, 14],
+ [11, 8, 12, 7, 1, 14, 2, 13, 6, 15, 0, 9, 10, 4, 5, 3],
+], 
+
+[[12, 1, 10, 15, 9, 2, 6, 8, 0, 13, 3, 4, 14, 7, 5, 11],
+ [10, 15, 4, 2, 7, 12, 9, 5, 6, 1, 13, 14, 0, 11, 3, 8],
+ [9, 14, 15, 5, 2, 8, 12, 3, 7, 0, 4, 10, 1, 13, 11, 6],
+ [4, 3, 2, 12, 9, 5, 15, 10, 11, 14, 1, 7, 6, 0, 8, 13],
+], 
+
+[[4, 11, 2, 14, 15, 0, 8, 13, 3, 12, 9, 7, 5, 10, 6, 1],
+ [13, 0, 11, 7, 4, 9, 1, 10, 14, 3, 5, 12, 2, 15, 8, 6],
+ [1, 4, 11, 13, 12, 3, 7, 14, 10, 15, 6, 8, 0, 5, 9, 2],
+ [6, 11, 13, 8, 1, 4, 10, 7, 9, 5, 0, 15, 14, 2, 3, 12],
+],
+   
+[[13, 2, 8, 4, 6, 15, 11, 1, 10, 9, 3, 14, 5, 0, 12, 7],
+ [1, 15, 13, 8, 10, 3, 7, 4, 12, 5, 6, 11, 0, 14, 9, 2],
+ [7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8],
+ [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11],
+]
+]
+
+#Permut made after each SBox substitution for each round
+P = [16, 7, 20, 21, 29, 12, 28, 17,
+     1, 15, 23, 26, 5, 18, 31, 10,
+     2, 8, 24, 14, 32, 27, 3, 9,
+     19, 13, 30, 6, 22, 11, 4, 25]
+
+#Final permut for datas after the 16 rounds
+PI_1 = [40, 8, 48, 16, 56, 24, 64, 32,
+        39, 7, 47, 15, 55, 23, 63, 31,
+        38, 6, 46, 14, 54, 22, 62, 30,
+        37, 5, 45, 13, 53, 21, 61, 29,
+        36, 4, 44, 12, 52, 20, 60, 28,
+        35, 3, 43, 11, 51, 19, 59, 27,
+        34, 2, 42, 10, 50, 18, 58, 26,
+        33, 1, 41, 9, 49, 17, 57, 25]
+
+#Matrix that determine the shift for each round of keys
+SHIFT = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
+
+def string_to_bit_array(text):#Convert a string into a list of bits
+    array = list()
+    for char in text:
+        binval = binvalue(char, 8)#Get the char value on one byte
+        array.extend([int(x) for x in list(binval)]) #Add the bits to the final list
+    return array
+
+def bit_array_to_string(array): #Recreate the string from the bit array
+    res = ''.join([chr(int(y,2)) for y in [''.join([str(x) for x in _bytes]) for _bytes in  nsplit(array,8)]])   
+    return res
+
+def binvalue(val, bitsize): #Return the binary value as a string of the given size 
+    binval = bin(val)[2:] if isinstance(val, int) else bin(ord(val))[2:]
+    if len(binval) > bitsize:
+        raise "binary value larger than the expected size"
+    while len(binval) < bitsize:
+        binval = "0"+binval #Add as many 0 as needed to get the wanted size
+    return binval
+
+def nsplit(s, n):#Split a list into sublists of size "n"
+    return [s[k:k+n] for k in range(0, len(s), n)]
+
+ENCRYPT=1
+DECRYPT=0
+
+class des():
+    def __init__(self):
+        self.password = None
+        self.text = None
+        self.keys = list()
+        
+    def run(self, key, text, action=ENCRYPT, padding=False):
+        if len(key) < 8:
+            raise "Key Should be 8 bytes long"
+        elif len(key) > 8:
+            key = key[:8] #If key size is above 8bytes, cut to be 8bytes long
+        
+        self.password = key
+        self.text = text
+        
+        if padding and action==ENCRYPT:
+            self.addPadding()
+        elif len(self.text) % 8 != 0:#If not padding specified data size must be multiple of 8 bytes
+            raise "Data size should be multiple of 8"
+        
+        self.generatekeys() #Generate all the keys
+        text_blocks = nsplit(self.text, 8) #Split the text in blocks of 8 bytes so 64 bits
+        result = list()
+        for block in text_blocks:#Loop over all the blocks of data
+            block = string_to_bit_array(block)#Convert the block in bit array
+            block = self.permut(block,PI)#Apply the initial permutation
+            g, d = nsplit(block, 32) #g(LEFT), d(RIGHT)
+            tmp = None
+            for i in range(16): #Do the 16 rounds
+                d_e = self.expand(d, E) #Expand d to match Ki size (48bits)
+                if action == ENCRYPT:
+                    tmp = self.xor(self.keys[i], d_e)#If encrypt use Ki
+                else:
+                    tmp = self.xor(self.keys[15-i], d_e)#If decrypt start by the last key
+                tmp = self.substitute(tmp) #Method that will apply the SBOXes
+                tmp = self.permut(tmp, P)
+                tmp = self.xor(g, tmp)
+                g = d
+                d = tmp
+            result += self.permut(d+g, PI_1) #Do the last permut and append the result to result
+        final_res = bit_array_to_string(result)
+        if padding and action==DECRYPT:
+            return self.removePadding(final_res) #Remove the padding if decrypt and padding is true
+        else:
+            return final_res #Return the final string of data ciphered/deciphered
+    
+    def substitute(self, d_e):#Substitute bytes using SBOX
+        subblocks = nsplit(d_e, 6)#Split bit array into sublist of 6 bits
+        result = list()
+        for i in range(len(subblocks)): #For all the sublists
+            block = subblocks[i]
+            row = int(str(block[0])+str(block[5]),2)#Get the row with the first and last bit
+            column = int(''.join([str(x) for x in block[1:][:-1]]),2) #Column is the 2,3,4,5th bits
+            val = S_BOX[i][row][column] #Take the value in the SBOX appropriated for the round (i)
+            bin = binvalue(val, 4)#Convert the value to binary
+            result += [int(x) for x in bin]#And append it to the resulting list
+        return result
+        
+    def permut(self, block, table):#Permut the given block using the given table (so generic method)
+        return [block[x-1] for x in table]
+    
+    def expand(self, block, table):#Do the exact same thing than permut but for more clarity has been renamed
+        return [block[x-1] for x in table]
+    
+    def xor(self, t1, t2):#Apply a xor and return the resulting list
+        return [x^y for x,y in zip(t1,t2)]
+    
+    def generatekeys(self):#Algorithm that generates all the keys
+        self.keys = []
+        key = string_to_bit_array(self.password)
+        key = self.permut(key, CP_1) #Apply the initial permut on the key
+        g, d = nsplit(key, 28) #Split it in to (g->LEFT),(d->RIGHT)
+        for i in range(16):#Apply the 16 rounds
+            g, d = self.shift(g, d, SHIFT[i]) #Apply the shift associated with the round (not always 1)
+            tmp = g + d #Merge them
+            self.keys.append(self.permut(tmp, CP_2)) #Apply the permut to get the Ki
+
+    def shift(self, g, d, n): #Shift a list of the given value
+        return g[n:] + g[:n], d[n:] + d[:n]
+    
+    def addPadding(self):#Add padding to the datas using PKCS5 spec.
+        pad_len = 8 - (len(self.text) % 8)
+        self.text += pad_len * chr(pad_len)
+    
+    def removePadding(self, data):#Remove the padding of the plain text (it assume there is padding)
+        pad_len = ord(data[-1])
+        return data[:-pad_len]
+    
+    def encrypt(self, key, text, padding=False):
+        return self.run(key, text, ENCRYPT, padding)
+    
+    def decrypt(self, key, text, padding=False):
+        return self.run(key, text, DECRYPT, padding)
+    
+if __name__ == '__main__':
+    key = input('Enter Key: ') # "secret_k"
+    text= input('Enter Plain Text: ') # "Hello wo"
+    d = des()
+    r = d.encrypt(key,text)
+    r2 = d.decrypt(key,r)
+    print("Cipher Text: %r"%r)
+    print("Deciphered Text:", r2)
+	
+	
+	
+	################################LAB6 AES####################
+	#!/usr/bin/python
+#
+# aes.py: implements AES - Advanced Encryption Standard
+# from the SlowAES project, http://code.google.com/p/slowaes/
+#
+# Copyright (c) 2008    Josh Davis ( http://www.josh-davis.org ),
+#           Alex Martelli ( http://www.aleax.it )
+#
+# Ported from C code written by Laurent Haan ( http://www.progressive-coding.com )
+#
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/
+#
+import os
+import sys
+import math
+
+class AES(object):
+    '''AES funtions for a single block
+    '''
+    # Very annoying code:  all is for an object, but no state is kept!
+    # Should just be plain functions in a AES modlule.
+    
+    # valid key sizes
+    keySize = dict(SIZE_128=16, SIZE_192=24, SIZE_256=32)
+
+    # Rijndael S-box
+    sbox =  [0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67,
+            0x2b, 0xfe, 0xd7, 0xab, 0x76, 0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59,
+            0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 0xb7,
+            0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1,
+            0x71, 0xd8, 0x31, 0x15, 0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05,
+            0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75, 0x09, 0x83,
+            0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29,
+            0xe3, 0x2f, 0x84, 0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b,
+            0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf, 0xd0, 0xef, 0xaa,
+            0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c,
+            0x9f, 0xa8, 0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc,
+            0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2, 0xcd, 0x0c, 0x13, 0xec,
+            0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19,
+            0x73, 0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee,
+            0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 0xe0, 0x32, 0x3a, 0x0a, 0x49,
+            0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79,
+            0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4,
+            0xea, 0x65, 0x7a, 0xae, 0x08, 0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6,
+            0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a, 0x70,
+            0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9,
+            0x86, 0xc1, 0x1d, 0x9e, 0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e,
+            0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf, 0x8c, 0xa1,
+            0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0,
+            0x54, 0xbb, 0x16]
+
+    # Rijndael Inverted S-box
+    rsbox = [0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3,
+            0x9e, 0x81, 0xf3, 0xd7, 0xfb , 0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f,
+            0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb , 0x54,
+            0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b,
+            0x42, 0xfa, 0xc3, 0x4e , 0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24,
+            0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25 , 0x72, 0xf8,
+            0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d,
+            0x65, 0xb6, 0x92 , 0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda,
+            0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84 , 0x90, 0xd8, 0xab,
+            0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3,
+            0x45, 0x06 , 0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1,
+            0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b , 0x3a, 0x91, 0x11, 0x41,
+            0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6,
+            0x73 , 0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9,
+            0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e , 0x47, 0xf1, 0x1a, 0x71, 0x1d,
+            0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b ,
+            0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0,
+            0xfe, 0x78, 0xcd, 0x5a, 0xf4 , 0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07,
+            0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f , 0x60,
+            0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f,
+            0x93, 0xc9, 0x9c, 0xef , 0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5,
+            0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61 , 0x17, 0x2b,
+            0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55,
+            0x21, 0x0c, 0x7d]
+
+    def getSBoxValue(self,num):
+        """Retrieves a given S-Box Value"""
+        return self.sbox[num]
+
+    def getSBoxInvert(self,num):
+        """Retrieves a given Inverted S-Box Value"""
+        return self.rsbox[num]
+
+    def rotate(self, word):
+        """ Rijndael's key schedule rotate operation.
+        Rotate a word eight bits to the left: eg, rotate(1d2c3a4f) == 2c3a4f1d
+        Word is an char list of size 4 (32 bits overall).
+        """
+        return word[1:] + word[:1]
+
+    # Rijndael Rcon
+    Rcon = [0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36,
+            0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97,
+            0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72,
+            0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66,
+            0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04,
+            0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d,
+            0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3,
+            0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61,
+            0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a,
+            0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40,
+            0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc,
+            0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5,
+            0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a,
+            0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d,
+            0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c,
+            0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35,
+            0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4,
+            0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc,
+            0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08,
+            0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a,
+            0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d,
+            0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2,
+            0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74,
+            0xe8, 0xcb ]
+
+    def getRconValue(self, num):
+        """Retrieves a given Rcon Value"""
+        return self.Rcon[num]
+
+    def core(self, word, iteration):
+        """Key schedule core."""
+        # rotate the 32-bit word 8 bits to the left
+        word = self.rotate(word)
+        # apply S-Box substitution on all 4 parts of the 32-bit word
+        for i in range(4):
+            word[i] = self.getSBoxValue(word[i])
+        # XOR the output of the rcon operation with i to the first part
+        # (leftmost) only
+        word[0] = word[0] ^ self.getRconValue(iteration)
+        return word
+
+    def expandKey(self, key, size, expandedKeySize):
+        """Rijndael's key expansion.
+        Expands an 128,192,256 key into an 176,208,240 bytes key
+        expandedKey is a char list of large enough size,
+        key is the non-expanded key.
+        """
+        # current expanded keySize, in bytes
+        currentSize = 0
+        rconIteration = 1
+        expandedKey = [0] * expandedKeySize
+
+        # set the 16, 24, 32 bytes of the expanded key to the input key
+        for j in range(size):
+            expandedKey[j] = key[j]
+        currentSize += size
+
+        while currentSize < expandedKeySize:
+            # assign the previous 4 bytes to the temporary value t
+            t = expandedKey[currentSize-4:currentSize]
+
+            # every 16,24,32 bytes we apply the core schedule to t
+            # and increment rconIteration afterwards
+            if currentSize % size == 0:
+                t = self.core(t, rconIteration)
+                rconIteration += 1
+            # For 256-bit keys, we add an extra sbox to the calculation
+            if size == self.keySize["SIZE_256"] and ((currentSize % size) == 16):
+                for l in range(4): t[l] = self.getSBoxValue(t[l])
+
+            # We XOR t with the four-byte block 16,24,32 bytes before the new
+            # expanded key.  This becomes the next four bytes in the expanded
+            # key.
+            for m in range(4):
+                expandedKey[currentSize] = expandedKey[currentSize - size] ^ \
+                        t[m]
+                currentSize += 1
+
+        return expandedKey
+
+    def addRoundKey(self, state, roundKey):
+        """Adds (XORs) the round key to the state."""
+        for i in range(16):
+            state[i] ^= roundKey[i]
+        return state
+
+    def createRoundKey(self, expandedKey, roundKeyPointer):
+        """Create a round key.
+        Creates a round key from the given expanded key and the
+        position within the expanded key.
+        """
+        roundKey = [0] * 16
+        for i in range(4):
+            for j in range(4):
+                roundKey[j*4+i] = expandedKey[roundKeyPointer + i*4 + j]
+        return roundKey
+
+    def galois_multiplication(self, a, b):
+        """Galois multiplication of 8 bit characters a and b."""
+        p = 0
+        for counter in range(8):
+            if b & 1: p ^= a
+            hi_bit_set = a & 0x80
+            a <<= 1
+            # keep a 8 bit
+            a &= 0xFF
+            if hi_bit_set:
+                a ^= 0x1b
+            b >>= 1
+        return p
+
+    #
+    # substitute all the values from the state with the value in the SBox
+    # using the state value as index for the SBox
+    #
+    def subBytes(self, state, isInv):
+        if isInv: getter = self.getSBoxInvert
+        else: getter = self.getSBoxValue
+        for i in range(16): state[i] = getter(state[i])
+        return state
+
+    # iterate over the 4 rows and call shiftRow() with that row
+    def shiftRows(self, state, isInv):
+        for i in range(4):
+            state = self.shiftRow(state, i*4, i, isInv)
+        return state
+
+    # each iteration shifts the row to the left by 1
+    def shiftRow(self, state, statePointer, nbr, isInv):
+        for i in range(nbr):
+            if isInv:
+                state[statePointer:statePointer+4] = \
+                        state[statePointer+3:statePointer+4] + \
+                        state[statePointer:statePointer+3]
+            else:
+                state[statePointer:statePointer+4] = \
+                        state[statePointer+1:statePointer+4] + \
+                        state[statePointer:statePointer+1]
+        return state
+
+    # galois multiplication of the 4x4 matrix
+    def mixColumns(self, state, isInv):
+        # iterate over the 4 columns
+        for i in range(4):
+            # construct one column by slicing over the 4 rows
+            column = state[i:i+16:4]
+            # apply the mixColumn on one column
+            column = self.mixColumn(column, isInv)
+            # put the values back into the state
+            state[i:i+16:4] = column
+
+        return state
+
+    # galois multiplication of 1 column of the 4x4 matrix
+    def mixColumn(self, column, isInv):
+        if isInv: mult = [14, 9, 13, 11]
+        else: mult = [2, 1, 1, 3]
+        cpy = list(column)
+        g = self.galois_multiplication
+
+        column[0] = g(cpy[0], mult[0]) ^ g(cpy[3], mult[1]) ^ \
+                    g(cpy[2], mult[2]) ^ g(cpy[1], mult[3])
+        column[1] = g(cpy[1], mult[0]) ^ g(cpy[0], mult[1]) ^ \
+                    g(cpy[3], mult[2]) ^ g(cpy[2], mult[3])
+        column[2] = g(cpy[2], mult[0]) ^ g(cpy[1], mult[1]) ^ \
+                    g(cpy[0], mult[2]) ^ g(cpy[3], mult[3])
+        column[3] = g(cpy[3], mult[0]) ^ g(cpy[2], mult[1]) ^ \
+                    g(cpy[1], mult[2]) ^ g(cpy[0], mult[3])
+        return column
+
+    # applies the 4 operations of the forward round in sequence
+    def aes_round(self, state, roundKey):
+        state = self.subBytes(state, False)
+        state = self.shiftRows(state, False)
+        state = self.mixColumns(state, False)
+        state = self.addRoundKey(state, roundKey)
+        return state
+
+    # applies the 4 operations of the inverse round in sequence
+    def aes_invRound(self, state, roundKey):
+        state = self.shiftRows(state, True)
+        state = self.subBytes(state, True)
+        state = self.addRoundKey(state, roundKey)
+        state = self.mixColumns(state, True)
+        return state
+
+    # Perform the initial operations, the standard round, and the final
+    # operations of the forward aes, creating a round key for each round
+    def aes_main(self, state, expandedKey, nbrRounds):
+        state = self.addRoundKey(state, self.createRoundKey(expandedKey, 0))
+        i = 1
+        while i < nbrRounds:
+            state = self.aes_round(state,
+                                   self.createRoundKey(expandedKey, 16*i))
+            i += 1
+        state = self.subBytes(state, False)
+        state = self.shiftRows(state, False)
+        state = self.addRoundKey(state,
+                                 self.createRoundKey(expandedKey, 16*nbrRounds))
+        return state
+
+    # Perform the initial operations, the standard round, and the final
+    # operations of the inverse aes, creating a round key for each round
+    def aes_invMain(self, state, expandedKey, nbrRounds):
+        state = self.addRoundKey(state,
+                                 self.createRoundKey(expandedKey, 16*nbrRounds))
+        i = nbrRounds - 1
+        while i > 0:
+            state = self.aes_invRound(state,
+                                      self.createRoundKey(expandedKey, 16*i))
+            i -= 1
+        state = self.shiftRows(state, True)
+        state = self.subBytes(state, True)
+        state = self.addRoundKey(state, self.createRoundKey(expandedKey, 0))
+        return state
+
+    # encrypts a 128 bit input block against the given key of size specified
+    def encrypt(self, iput, key, size):
+        output = [0] * 16
+        # the number of rounds
+        nbrRounds = 0
+        # the 128 bit block to encode
+        block = [0] * 16
+        # set the number of rounds
+        if size == self.keySize["SIZE_128"]: nbrRounds = 10
+        elif size == self.keySize["SIZE_192"]: nbrRounds = 12
+        elif size == self.keySize["SIZE_256"]: nbrRounds = 14
+        else: return None
+
+        # the expanded keySize
+        expandedKeySize = 16*(nbrRounds+1)
+
+        # Set the block values, for the block:
+        # a0,0 a0,1 a0,2 a0,3
+        # a1,0 a1,1 a1,2 a1,3
+        # a2,0 a2,1 a2,2 a2,3
+        # a3,0 a3,1 a3,2 a3,3
+        # the mapping order is a0,0 a1,0 a2,0 a3,0 a0,1 a1,1 ... a2,3 a3,3
+        #
+        # iterate over the columns
+        for i in range(4):
+            # iterate over the rows
+            for j in range(4):
+                block[(i+(j*4))] = iput[(i*4)+j]
+
+        # expand the key into an 176, 208, 240 bytes key
+        # the expanded key
+        expandedKey = self.expandKey(key, size, expandedKeySize)
+
+        # encrypt the block using the expandedKey
+        block = self.aes_main(block, expandedKey, nbrRounds)
+
+        # unmap the block again into the output
+        for k in range(4):
+            # iterate over the rows
+            for l in range(4):
+                output[(k*4)+l] = block[(k+(l*4))]
+        return output
+
+    # decrypts a 128 bit input block against the given key of size specified
+    def decrypt(self, iput, key, size):
+        output = [0] * 16
+        # the number of rounds
+        nbrRounds = 0
+        # the 128 bit block to decode
+        block = [0] * 16
+        # set the number of rounds
+        if size == self.keySize["SIZE_128"]: nbrRounds = 10
+        elif size == self.keySize["SIZE_192"]: nbrRounds = 12
+        elif size == self.keySize["SIZE_256"]: nbrRounds = 14
+        else: return None
+
+        # the expanded keySize
+        expandedKeySize = 16*(nbrRounds+1)
+
+        # Set the block values, for the block:
+        # a0,0 a0,1 a0,2 a0,3
+        # a1,0 a1,1 a1,2 a1,3
+        # a2,0 a2,1 a2,2 a2,3
+        # a3,0 a3,1 a3,2 a3,3
+        # the mapping order is a0,0 a1,0 a2,0 a3,0 a0,1 a1,1 ... a2,3 a3,3
+
+        # iterate over the columns
+        for i in range(4):
+            # iterate over the rows
+            for j in range(4):
+                block[(i+(j*4))] = iput[(i*4)+j]
+        # expand the key into an 176, 208, 240 bytes key
+        expandedKey = self.expandKey(key, size, expandedKeySize)
+        # decrypt the block using the expandedKey
+        block = self.aes_invMain(block, expandedKey, nbrRounds)
+        # unmap the block again into the output
+        for k in range(4):
+            # iterate over the rows
+            for l in range(4):
+                output[(k*4)+l] = block[(k+(l*4))]
+        return output
+
+
+class AESModeOfOperation(object):
+    '''Handles AES with plaintext consistingof multiple blocks.
+    Choice of block encoding modes:  OFT, CFB, CBC
+    '''
+    # Very annoying code:  all is for an object, but no state is kept!
+    # Should just be plain functions in an AES_BlockMode module.
+    aes = AES()
+
+    # structure of supported modes of operation
+    modeOfOperation = dict(OFB=0, CFB=1, CBC=2)
+
+    # converts a 16 character string into a number array
+    def convertString(self, string, start, end, mode):
+        if end - start > 16: end = start + 16
+        if mode == self.modeOfOperation["CBC"]: ar = [0] * 16
+        else: ar = []
+
+        i = start
+        j = 0
+        while len(ar) < end - start:
+            ar.append(0)
+        while i < end:
+            ar[j] = ord(string[i])
+            j += 1
+            i += 1
+        return ar
+
+    # Mode of Operation Encryption
+    # stringIn - Input String
+    # mode - mode of type modeOfOperation
+    # hexKey - a hex key of the bit length size
+    # size - the bit length of the key
+    # hexIV - the 128 bit hex Initilization Vector
+    def encrypt(self, stringIn, mode, key, size, IV):
+        if len(key) % size:
+            return None
+        if len(IV) % 16:
+            return None
+        # the AES input/output
+        plaintext = []
+        iput = [0] * 16
+        output = []
+        ciphertext = [0] * 16
+        # the output cipher string
+        cipherOut = []
+        # char firstRound
+        firstRound = True
+        if stringIn != None:
+            for j in range(int(math.ceil(float(len(stringIn))/16))):
+                start = j*16
+                end = j*16+16
+                if  end > len(stringIn):
+                    end = len(stringIn)
+                plaintext = self.convertString(stringIn, start, end, mode)
+                # print 'PT@%s:%s' % (j, plaintext)
+                if mode == self.modeOfOperation["CFB"]:
+                    if firstRound:
+                        output = self.aes.encrypt(IV, key, size)
+                        firstRound = False
+                    else:
+                        output = self.aes.encrypt(iput, key, size)
+                    for i in range(16):
+                        if len(plaintext)-1 < i:
+                            ciphertext[i] = 0 ^ output[i]
+                        elif len(output)-1 < i:
+                            ciphertext[i] = plaintext[i] ^ 0
+                        elif len(plaintext)-1 < i and len(output) < i:
+                            ciphertext[i] = 0 ^ 0
+                        else:
+                            ciphertext[i] = plaintext[i] ^ output[i]
+                    for k in range(end-start):
+                        cipherOut.append(ciphertext[k])
+                    iput = ciphertext
+                elif mode == self.modeOfOperation["OFB"]:
+                    if firstRound:
+                        output = self.aes.encrypt(IV, key, size)
+                        firstRound = False
+                    else:
+                        output = self.aes.encrypt(iput, key, size)
+                    for i in range(16):
+                        if len(plaintext)-1 < i:
+                            ciphertext[i] = 0 ^ output[i]
+                        elif len(output)-1 < i:
+                            ciphertext[i] = plaintext[i] ^ 0
+                        elif len(plaintext)-1 < i and len(output) < i:
+                            ciphertext[i] = 0 ^ 0
+                        else:
+                            ciphertext[i] = plaintext[i] ^ output[i]
+                    for k in range(end-start):
+                        cipherOut.append(ciphertext[k])
+                    iput = output
+                elif mode == self.modeOfOperation["CBC"]:
+                    for i in range(16):
+                        if firstRound:
+                            iput[i] =  plaintext[i] ^ IV[i]
+                        else:
+                            iput[i] =  plaintext[i] ^ ciphertext[i]
+                    # print 'IP@%s:%s' % (j, iput)
+                    firstRound = False
+                    ciphertext = self.aes.encrypt(iput, key, size)
+                    # always 16 bytes because of the padding for CBC
+                    for k in range(16):
+                        cipherOut.append(ciphertext[k])
+        return mode, len(stringIn), cipherOut
+
+    # Mode of Operation Decryption
+    # cipherIn - Encrypted String
+    # originalsize - The unencrypted string length - required for CBC
+    # mode - mode of type modeOfOperation
+    # key - a number array of the bit length size
+    # size - the bit length of the key
+    # IV - the 128 bit number array Initilization Vector
+    def decrypt(self, cipherIn, originalsize, mode, key, size, IV):
+        # cipherIn = unescCtrlChars(cipherIn)
+        if len(key) % size:
+            return None
+        if len(IV) % 16:
+            return None
+        # the AES input/output
+        ciphertext = []
+        iput = []
+        output = []
+        plaintext = [0] * 16
+        # the output plain text character list
+        chrOut = []
+        # char firstRound
+        firstRound = True
+        if cipherIn != None:
+            for j in range(int(math.ceil(float(len(cipherIn))/16))):
+                start = j*16
+                end = j*16+16
+                if j*16+16 > len(cipherIn):
+                    end = len(cipherIn)
+                ciphertext = cipherIn[start:end]
+                if mode == self.modeOfOperation["CFB"]:
+                    if firstRound:
+                        output = self.aes.encrypt(IV, key, size)
+                        firstRound = False
+                    else:
+                        output = self.aes.encrypt(iput, key, size)
+                    for i in range(16):
+                        if len(output)-1 < i:
+                            plaintext[i] = 0 ^ ciphertext[i]
+                        elif len(ciphertext)-1 < i:
+                            plaintext[i] = output[i] ^ 0
+                        elif len(output)-1 < i and len(ciphertext) < i:
+                            plaintext[i] = 0 ^ 0
+                        else:
+                            plaintext[i] = output[i] ^ ciphertext[i]
+                    for k in range(end-start):
+                        chrOut.append(chr(plaintext[k]))
+                    iput = ciphertext
+                elif mode == self.modeOfOperation["OFB"]:
+                    if firstRound:
+                        output = self.aes.encrypt(IV, key, size)
+                        firstRound = False
+                    else:
+                        output = self.aes.encrypt(iput, key, size)
+                    for i in range(16):
+                        if len(output)-1 < i:
+                            plaintext[i] = 0 ^ ciphertext[i]
+                        elif len(ciphertext)-1 < i:
+                            plaintext[i] = output[i] ^ 0
+                        elif len(output)-1 < i and len(ciphertext) < i:
+                            plaintext[i] = 0 ^ 0
+                        else:
+                            plaintext[i] = output[i] ^ ciphertext[i]
+                    for k in range(end-start):
+                        chrOut.append(chr(plaintext[k]))
+                    iput = output
+                elif mode == self.modeOfOperation["CBC"]:
+                    output = self.aes.decrypt(ciphertext, key, size)
+                    for i in range(16):
+                        if firstRound:
+                            plaintext[i] = IV[i] ^ output[i]
+                        else:
+                            plaintext[i] = iput[i] ^ output[i]
+                    firstRound = False
+                    if originalsize is not None and originalsize < end:
+                        for k in range(originalsize-start):
+                            chrOut.append(chr(plaintext[k]))
+                    else:
+                        for k in range(end-start):
+                            chrOut.append(chr(plaintext[k]))
+                    iput = ciphertext
+        return "".join(chrOut)
+
+
+def append_PKCS7_padding(s):
+    """return s padded to a multiple of 16-bytes by PKCS7 padding"""
+    numpads = 16 - (len(s)%16)
+    return s + numpads*chr(numpads)
+
+def strip_PKCS7_padding(s):
+    """return s stripped of PKCS7 padding"""
+    if len(s)%16 or not s:
+        raise ValueError("String of len %d can't be PCKS7-padded" % len(s))
+    numpads = ord(s[-1])
+    if numpads > 16:
+        raise ValueError("String ending with %r can't be PCKS7-padded" % s[-1])
+    return s[:-numpads]
+
+def encryptData(key, data, mode=AESModeOfOperation.modeOfOperation["CBC"]):
+    """encrypt `data` using `key`
+    `key` should be a string of bytes.
+    returned cipher is a string of bytes prepended with the initialization
+    vector.
+    """
+    key = map(ord, key)
+    if mode == AESModeOfOperation.modeOfOperation["CBC"]:
+        data = append_PKCS7_padding(data)
+    keysize = len(key)
+    assert keysize in AES.keySize.values(), 'invalid key size: %s' % keysize
+    # create a new iv using random data
+    iv = [ord(i) for i in os.urandom(16)]
+    moo = AESModeOfOperation()
+    (mode, length, ciph) = moo.encrypt(data, mode, key, keysize, iv)
+    # With padding, the original length does not need to be known. It's a bad
+    # idea to store the original message length.
+    # prepend the iv.
+    return ''.join(map(chr, iv)) + ''.join(map(chr, ciph))
+
+def decryptData(key, data, mode=AESModeOfOperation.modeOfOperation["CBC"]):
+    """decrypt `data` using `key`
+    `key` should be a string of bytes.
+    `data` should have the initialization vector prepended as a string of
+    ordinal values.
+    """
+
+    key = map(ord, key)
+    keysize = len(key)
+    assert keysize in AES.keySize.values(), 'invalid key size: %s' % keysize
+    # iv is first 16 bytes
+    iv = map(ord, data[:16])
+    data = map(ord, data[16:])
+    moo = AESModeOfOperation()
+    decr = moo.decrypt(data, None, mode, key, keysize, iv)
+    if mode == AESModeOfOperation.modeOfOperation["CBC"]:
+        decr = strip_PKCS7_padding(decr)
+    return decr
+
+def generateRandomKey(keysize):
+    """Generates a key from random data of length `keysize`.    
+    The returned key is a string of bytes.    
+    """
+    if keysize not in (16, 24, 32):
+        emsg = 'Invalid keysize, %s. Should be one of (16, 24, 32).'
+        raise ValueError, emsg % keysize
+    return os.urandom(keysize)
+
+def testStr(cleartext, keysize=16, modeName = "CBC"):
+    '''Test with random key, choice of mode.'''
+    print 'Random key test', 'Mode:', modeName
+    print 'cleartext:', cleartext
+    key =  generateRandomKey(keysize)
+    print 'Key:', [ord(x) for x in key]
+    mode = AESModeOfOperation.modeOfOperation[modeName]
+    cipher = encryptData(key, cleartext, mode)
+    print 'Cipher:', [ord(x) for x in cipher]
+    decr = decryptData(key, cipher, mode)
+    print 'Decrypted:', decr
+    
+    
+if __name__ == "__main__":
+    moo = AESModeOfOperation()
+    cleartext = "This is a test with several blocks!"
+    cypherkey = [143,194,34,208,145,203,230,143,177,246,97,206,145,92,255,84]
+    iv = [103,35,148,239,76,213,47,118,255,222,123,176,106,134,98,92]
+    mode, orig_len, ciph = moo.encrypt(cleartext, moo.modeOfOperation["CBC"],
+            cypherkey, moo.aes.keySize["SIZE_128"], iv)
+    print 'm=%s, ol=%s (%s), ciph=%s' % (mode, orig_len, len(cleartext), ciph)
+    decr = moo.decrypt(ciph, orig_len, mode, cypherkey,
+            moo.aes.keySize["SIZE_128"], iv)
+    print decr
+    testStr(cleartext, 16, "CBC")
+	
+	
+	##############LAB6 AES FAST#########################
+	import sys
+import base64
+from Crypto.Cipher import AES
+
+
+class AESCipher(object):
+    def __init__(self, key):
+        self.bs = 16
+        self.cipher = AES.new(key, AES.MODE_ECB)
+
+    def encrypt(self, raw):
+        raw = self._pad(raw)
+        encrypted = self.cipher.encrypt(raw)
+        encoded = base64.b64encode(encrypted)
+        return str(encoded, 'utf-8')
+
+    def decrypt(self, raw):
+        decoded = base64.b64decode(raw)
+        decrypted = self.cipher.decrypt(decoded)
+        return str(self._unpad(decrypted), 'utf-8')
+
+    def _pad(self, s):
+        return s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs)
+
+    def _unpad(self, s):
+        return s[:-ord(s[len(s)-1:])]
+
+
+if __name__ == '__main__':
+    # key = '`?.F(fHbN6XK|j!t'
+    key = input('Enter Key: ')
+    cipher = AESCipher(key)
+
+    # plaintext = '542#1504891440039'
+    plaintext = input('Enter Plaintext: ')
+    encrypted = cipher.encrypt(plaintext)
+    print('Encrypted: %s' % encrypted)
+    # ciphertext = '5bgJqIqFuT8ACuvT1dz2Bj5kx9ZAIkODHWRzuLlfYV0='
+    # assert encrypted == ciphertext
+
+    decrypted = cipher.decrypt(encrypted)
+    print('Decrypted: %s' % decrypted)
+    # assert decrypted == plaintext
+	
+	
+	
+	#################LAB6 BLOWFISH###########################
+	#!/usr/bin/python3
+
+P = [
+    "243f6a88",
+    "85a308d3",
+    "13198a2e",
+    "03707344",
+    "a4093822",
+    "299f31d0",
+    "082efa98",
+    "ec4e6c89",
+    "452821e6",
+    "38d01377",
+    "be5466cf",
+    "34e90c6c",
+    "c0ac29b7",
+    "c97c50dd",
+    "3f84d5b5",
+    "b5470917",
+    "9216d5d9",
+    "8979fb1b",
+]
+
+S = [[ "d1310ba6", "98dfb5ac", "2ffd72db", "d01adfb7", "b8e1afed", 
+        "6a267e96", "ba7c9045", "f12c7f99", "24a19947", "b3916cf7", 
+        "0801f2e2", "858efc16", "636920d8", "71574e69", "a458fea3", 
+        "f4933d7e", "0d95748f", "728eb658", "718bcd58", "82154aee", 
+        "7b54a41d", "c25a59b5", "9c30d539", "2af26013", "c5d1b023", 
+        "286085f0", "ca417918", "b8db38ef", "8e79dcb0", "603a180e", 
+        "6c9e0e8b", "b01e8a3e", "d71577c1", "bd314b27", "78af2fda", 
+        "55605c60", "e65525f3", "aa55ab94", "57489862", "63e81440", 
+        "55ca396a", "2aab10b6", "b4cc5c34", "1141e8ce", "a15486af", 
+        "7c72e993", "b3ee1411", "636fbc2a", "2ba9c55d", "741831f6", 
+        "ce5c3e16", "9b87931e", "afd6ba33", "6c24cf5c", "7a325381", 
+        "28958677", "3b8f4898", "6b4bb9af", "c4bfe81b", "66282193", 
+        "61d809cc", "fb21a991", "487cac60", "5dec8032", "ef845d5d", 
+        "e98575b1", "dc262302", "eb651b88", "23893e81", "d396acc5", 
+        "0f6d6ff3", "83f44239", "2e0b4482", "a4842004", "69c8f04a", 
+        "9e1f9b5e", "21c66842", "f6e96c9a", "670c9c61", "abd388f0", 
+        "6a51a0d2", "d8542f68", "960fa728", "ab5133a3", "6eef0b6c", 
+        "137a3be4", "ba3bf050", "7efb2a98", "a1f1651d", "39af0176", 
+        "66ca593e", "82430e88", "8cee8619", "456f9fb4", "7d84a5c3", 
+        "3b8b5ebe", "e06f75d8", "85c12073", "401a449f", "56c16aa6", 
+        "4ed3aa62", "363f7706", "1bfedf72", "429b023d", "37d0d724", 
+        "d00a1248", "db0fead3", "49f1c09b", "075372c9", "80991b7b", 
+        "25d479d8", "f6e8def7", "e3fe501a", "b6794c3b", "976ce0bd", 
+        "04c006ba", "c1a94fb6", "409f60c4", "5e5c9ec2", "196a2463", 
+        "68fb6faf", "3e6c53b5", "1339b2eb", "3b52ec6f", "6dfc511f", 
+        "9b30952c", "cc814544", "af5ebd09", "bee3d004", "de334afd", 
+        "660f2807", "192e4bb3", "c0cba857", "45c8740f", "d20b5f39", 
+        "b9d3fbdb", "5579c0bd", "1a60320a", "d6a100c6", "402c7279", 
+        "679f25fe", "fb1fa3cc", "8ea5e9f8", "db3222f8", "3c7516df", 
+        "fd616b15", "2f501ec8", "ad0552ab", "323db5fa", "fd238760", 
+        "53317b48", "3e00df82", "9e5c57bb", "ca6f8ca0", "1a87562e", 
+        "df1769db", "d542a8f6", "287effc3", "ac6732c6", "8c4f5573", 
+        "695b27b0", "bbca58c8", "e1ffa35d", "b8f011a0", "10fa3d98", 
+        "fd2183b8", "4afcb56c", "2dd1d35b", "9a53e479", "b6f84565", 
+        "d28e49bc", "4bfb9790", "e1ddf2da", "a4cb7e33", "62fb1341", 
+        "cee4c6e8", "ef20cada", "36774c01", "d07e9efe", "2bf11fb4", 
+        "95dbda4d", "ae909198", "eaad8e71", "6b93d5a0", "d08ed1d0", 
+        "afc725e0", "8e3c5b2f", "8e7594b7", "8ff6e2fb", "f2122b64", 
+        "8888b812", "900df01c", "4fad5ea0", "688fc31c", "d1cff191", 
+        "b3a8c1ad", "2f2f2218", "be0e1777", "ea752dfe", "8b021fa1", 
+        "e5a0cc0f", "b56f74e8", "18acf3d6", "ce89e299", "b4a84fe0", 
+        "fd13e0b7", "7cc43b81", "d2ada8d9", "165fa266", "80957705", 
+        "93cc7314", "211a1477", "e6ad2065", "77b5fa86", "c75442f5", 
+        "fb9d35cf", "ebcdaf0c", "7b3e89a0", "d6411bd3", "ae1e7e49", 
+        "00250e2d", "2071b35e", "226800bb", "57b8e0af", "2464369b", 
+        "f009b91e", "5563911d", "59dfa6aa", "78c14389", "d95a537f", 
+        "207d5ba2", "02e5b9c5", "83260376", "6295cfa9", "11c81968", 
+        "4e734a41", "b3472dca", "7b14a94a", "1b510052", "9a532915", 
+        "d60f573f", "bc9bc6e4", "2b60a476", "81e67400", "08ba6fb5", 
+        "571be91f", "f296ec6b", "2a0dd915", "b6636521", "e7b9f9b6", 
+        "ff34052e", "c5855664", "53b02d5d", "a99f8fa1", "08ba4799", 
+        "6e85076a" ], 
+    [ "4b7a70e9", "b5b32944", "db75092e", "c4192623", "ad6ea6b0", 
+        "49a7df7d", "9cee60b8", "8fedb266", "ecaa8c71", "699a17ff", 
+        "5664526c", "c2b19ee1", "193602a5", "75094c29", "a0591340", 
+        "e4183a3e", "3f54989a", "5b429d65", "6b8fe4d6", "99f73fd6", 
+        "a1d29c07", "efe830f5", "4d2d38e6", "f0255dc1", "4cdd2086", 
+        "8470eb26", "6382e9c6", "021ecc5e", "09686b3f", "3ebaefc9", 
+        "3c971814", "6b6a70a1", "687f3584", "52a0e286", "b79c5305", 
+        "aa500737", "3e07841c", "7fdeae5c", "8e7d44ec", "5716f2b8", 
+        "b03ada37", "f0500c0d", "f01c1f04", "0200b3ff", "ae0cf51a", 
+        "3cb574b2", "25837a58", "dc0921bd", "d19113f9", "7ca92ff6", 
+        "94324773", "22f54701", "3ae5e581", "37c2dadc", "c8b57634", 
+        "9af3dda7", "a9446146", "0fd0030e", "ecc8c73e", "a4751e41", 
+        "e238cd99", "3bea0e2f", "3280bba1", "183eb331", "4e548b38", 
+        "4f6db908", "6f420d03", "f60a04bf", "2cb81290", "24977c79", 
+        "5679b072", "bcaf89af", "de9a771f", "d9930810", "b38bae12", 
+        "dccf3f2e", "5512721f", "2e6b7124", "501adde6", "9f84cd87", 
+        "7a584718", "7408da17", "bc9f9abc", "e94b7d8c", "ec7aec3a", 
+        "db851dfa", "63094366", "c464c3d2", "ef1c1847", "3215d908", 
+        "dd433b37", "24c2ba16", "12a14d43", "2a65c451", "50940002", 
+        "133ae4dd", "71dff89e", "10314e55", "81ac77d6", "5f11199b", 
+        "043556f1", "d7a3c76b", "3c11183b", "5924a509", "f28fe6ed", 
+        "97f1fbfa", "9ebabf2c", "1e153c6e", "86e34570", "eae96fb1", 
+        "860e5e0a", "5a3e2ab3", "771fe71c", "4e3d06fa", "2965dcb9", 
+        "99e71d0f", "803e89d6", "5266c825", "2e4cc978", "9c10b36a", 
+        "c6150eba", "94e2ea78", "a5fc3c53", "1e0a2df4", "f2f74ea7", 
+        "361d2b3d", "1939260f", "19c27960", "5223a708", "f71312b6", 
+        "ebadfe6e", "eac31f66", "e3bc4595", "a67bc883", "b17f37d1", 
+        "018cff28", "c332ddef", "be6c5aa5", "65582185", "68ab9802", 
+        "eecea50f", "db2f953b", "2aef7dad", "5b6e2f84", "1521b628", 
+        "29076170", "ecdd4775", "619f1510", "13cca830", "eb61bd96", 
+        "0334fe1e", "aa0363cf", "b5735c90", "4c70a239", "d59e9e0b", 
+        "cbaade14", "eecc86bc", "60622ca7", "9cab5cab", "b2f3846e", 
+        "648b1eaf", "19bdf0ca", "a02369b9", "655abb50", "40685a32", 
+        "3c2ab4b3", "319ee9d5", "c021b8f7", "9b540b19", "875fa099", 
+        "95f7997e", "623d7da8", "f837889a", "97e32d77", "11ed935f", 
+        "16681281", "0e358829", "c7e61fd6", "96dedfa1", "7858ba99", 
+        "57f584a5", "1b227263", "9b83c3ff", "1ac24696", "cdb30aeb", 
+        "532e3054", "8fd948e4", "6dbc3128", "58ebf2ef", "34c6ffea", 
+        "fe28ed61", "ee7c3c73", "5d4a14d9", "e864b7e3", "42105d14", 
+        "203e13e0", "45eee2b6", "a3aaabea", "db6c4f15", "facb4fd0", 
+        "c742f442", "ef6abbb5", "654f3b1d", "41cd2105", "d81e799e", 
+        "86854dc7", "e44b476a", "3d816250", "cf62a1f2", "5b8d2646", 
+        "fc8883a0", "c1c7b6a3", "7f1524c3", "69cb7492", "47848a0b", 
+        "5692b285", "095bbf00", "ad19489d", "1462b174", "23820e00", 
+        "58428d2a", "0c55f5ea", "1dadf43e", "233f7061", "3372f092", 
+        "8d937e41", "d65fecf1", "6c223bdb", "7cde3759", "cbee7460", 
+        "4085f2a7", "ce77326e", "a6078084", "19f8509e", "e8efd855", 
+        "61d99735", "a969a7aa", "c50c06c2", "5a04abfc", "800bcadc", 
+        "9e447a2e", "c3453484", "fdd56705", "0e1e9ec9", "db73dbd3", 
+        "105588cd", "675fda79", "e3674340", "c5c43465", "713e38d8", 
+        "3d28f89e", "f16dff20", "153e21e7", "8fb03d4a", "e6e39f2b", 
+        "db83adf7" ], 
+    [ "e93d5a68", "948140f7", "f64c261c", "94692934", "411520f7", 
+        "7602d4f7", "bcf46b2e", "d4a20068", "d4082471", "3320f46a", 
+        "43b7d4b7", "500061af", "1e39f62e", "97244546", "14214f74", 
+        "bf8b8840", "4d95fc1d", "96b591af", "70f4ddd3", "66a02f45", 
+        "bfbc09ec", "03bd9785", "7fac6dd0", "31cb8504", "96eb27b3", 
+        "55fd3941", "da2547e6", "abca0a9a", "28507825", "530429f4", 
+        "0a2c86da", "e9b66dfb", "68dc1462", "d7486900", "680ec0a4", 
+        "27a18dee", "4f3ffea2", "e887ad8c", "b58ce006", "7af4d6b6", 
+        "aace1e7c", "d3375fec", "ce78a399", "406b2a42", "20fe9e35", 
+        "d9f385b9", "ee39d7ab", "3b124e8b", "1dc9faf7", "4b6d1856", 
+        "26a36631", "eae397b2", "3a6efa74", "dd5b4332", "6841e7f7", 
+        "ca7820fb", "fb0af54e", "d8feb397", "454056ac", "ba489527", 
+        "55533a3a", "20838d87", "fe6ba9b7", "d096954b", "55a867bc", 
+        "a1159a58", "cca92963", "99e1db33", "a62a4a56", "3f3125f9", 
+        "5ef47e1c", "9029317c", "fdf8e802", "04272f70", "80bb155c", 
+        "05282ce3", "95c11548", "e4c66d22", "48c1133f", "c70f86dc", 
+        "07f9c9ee", "41041f0f", "404779a4", "5d886e17", "325f51eb", 
+        "d59bc0d1", "f2bcc18f", "41113564", "257b7834", "602a9c60", 
+        "dff8e8a3", "1f636c1b", "0e12b4c2", "02e1329e", "af664fd1", 
+        "cad18115", "6b2395e0", "333e92e1", "3b240b62", "eebeb922", 
+        "85b2a20e", "e6ba0d99", "de720c8c", "2da2f728", "d0127845", 
+        "95b794fd", "647d0862", "e7ccf5f0", "5449a36f", "877d48fa", 
+        "c39dfd27", "f33e8d1e", "0a476341", "992eff74", "3a6f6eab", 
+        "f4f8fd37", "a812dc60", "a1ebddf8", "991be14c", "db6e6b0d", 
+        "c67b5510", "6d672c37", "2765d43b", "dcd0e804", "f1290dc7", 
+        "cc00ffa3", "b5390f92", "690fed0b", "667b9ffb", "cedb7d9c", 
+        "a091cf0b", "d9155ea3", "bb132f88", "515bad24", "7b9479bf", 
+        "763bd6eb", "37392eb3", "cc115979", "8026e297", "f42e312d", 
+        "6842ada7", "c66a2b3b", "12754ccc", "782ef11c", "6a124237", 
+        "b79251e7", "06a1bbe6", "4bfb6350", "1a6b1018", "11caedfa", 
+        "3d25bdd8", "e2e1c3c9", "44421659", "0a121386", "d90cec6e", 
+        "d5abea2a", "64af674e", "da86a85f", "bebfe988", "64e4c3fe", 
+        "9dbc8057", "f0f7c086", "60787bf8", "6003604d", "d1fd8346", 
+        "f6381fb0", "7745ae04", "d736fccc", "83426b33", "f01eab71", 
+        "b0804187", "3c005e5f", "77a057be", "bde8ae24", "55464299", 
+        "bf582e61", "4e58f48f", "f2ddfda2", "f474ef38", "8789bdc2", 
+        "5366f9c3", "c8b38e74", "b475f255", "46fcd9b9", "7aeb2661", 
+        "8b1ddf84", "846a0e79", "915f95e2", "466e598e", "20b45770", 
+        "8cd55591", "c902de4c", "b90bace1", "bb8205d0", "11a86248", 
+        "7574a99e", "b77f19b6", "e0a9dc09", "662d09a1", "c4324633", 
+        "e85a1f02", "09f0be8c", "4a99a025", "1d6efe10", "1ab93d1d", 
+        "0ba5a4df", "a186f20f", "2868f169", "dcb7da83", "573906fe", 
+        "a1e2ce9b", "4fcd7f52", "50115e01", "a70683fa", "a002b5c4", 
+        "0de6d027", "9af88c27", "773f8641", "c3604c06", "61a806b5", 
+        "f0177a28", "c0f586e0", "006058aa", "30dc7d62", "11e69ed7", 
+        "2338ea63", "53c2dd94", "c2c21634", "bbcbee56", "90bcb6de", 
+        "ebfc7da1", "ce591d76", "6f05e409", "4b7c0188", "39720a3d", 
+        "7c927c24", "86e3725f", "724d9db9", "1ac15bb4", "d39eb8fc", 
+        "ed545578", "08fca5b5", "d83d7cd3", "4dad0fc4", "1e50ef5e", 
+        "b161e6f8", "a28514d9", "6c51133c", "6fd5c7e7", "56e14ec4", 
+        "362abfce", "ddc6c837", "d79a3234", "92638212", "670efa8e", 
+        "406000e0" ], 
+    [ "3a39ce37", "d3faf5cf", "abc27737", "5ac52d1b", "5cb0679e", 
+        "4fa33742", "d3822740", "99bc9bbe", "d5118e9d", "bf0f7315", 
+        "d62d1c7e", "c700c47b", "b78c1b6b", "21a19045", "b26eb1be", 
+        "6a366eb4", "5748ab2f", "bc946e79", "c6a376d2", "6549c2c8", 
+        "530ff8ee", "468dde7d", "d5730a1d", "4cd04dc6", "2939bbdb", 
+        "a9ba4650", "ac9526e8", "be5ee304", "a1fad5f0", "6a2d519a", 
+        "63ef8ce2", "9a86ee22", "c089c2b8", "43242ef6", "a51e03aa", 
+        "9cf2d0a4", "83c061ba", "9be96a4d", "8fe51550", "ba645bd6", 
+        "2826a2f9", "a73a3ae1", "4ba99586", "ef5562e9", "c72fefd3", 
+        "f752f7da", "3f046f69", "77fa0a59", "80e4a915", "87b08601", 
+        "9b09e6ad", "3b3ee593", "e990fd5a", "9e34d797", "2cf0b7d9", 
+        "022b8b51", "96d5ac3a", "017da67d", "d1cf3ed6", "7c7d2d28", 
+        "1f9f25cf", "adf2b89b", "5ad6b472", "5a88f54c", "e029ac71", 
+        "e019a5e6", "47b0acfd", "ed93fa9b", "e8d3c48d", "283b57cc", 
+        "f8d56629", "79132e28", "785f0191", "ed756055", "f7960e44", 
+        "e3d35e8c", "15056dd4", "88f46dba", "03a16125", "0564f0bd", 
+        "c3eb9e15", "3c9057a2", "97271aec", "a93a072a", "1b3f6d9b", 
+        "1e6321f5", "f59c66fb", "26dcf319", "7533d928", "b155fdf5", 
+        "03563482", "8aba3cbb", "28517711", "c20ad9f8", "abcc5167", 
+        "ccad925f", "4de81751", "3830dc8e", "379d5862", "9320f991", 
+        "ea7a90c2", "fb3e7bce", "5121ce64", "774fbe32", "a8b6e37e", 
+        "c3293d46", "48de5369", "6413e680", "a2ae0810", "dd6db224", 
+        "69852dfd", "09072166", "b39a460a", "6445c0dd", "586cdecf", 
+        "1c20c8ae", "5bbef7dd", "1b588d40", "ccd2017f", "6bb4e3bb", 
+        "dda26a7e", "3a59ff45", "3e350a44", "bcb4cdd5", "72eacea8", 
+        "fa6484bb", "8d6612ae", "bf3c6f47", "d29be463", "542f5d9e", 
+        "aec2771b", "f64e6370", "740e0d8d", "e75b1357", "f8721671", 
+        "af537d5d", "4040cb08", "4eb4e2cc", "34d2466a", "0115af84", 
+        "e1b00428", "95983a1d", "06b89fb4", "ce6ea048", "6f3f3b82", 
+        "3520ab82", "011a1d4b", "277227f8", "611560b1", "e7933fdc", 
+        "bb3a792b", "344525bd", "a08839e1", "51ce794b", "2f32c9b7", 
+        "a01fbac9", "e01cc87e", "bcc7d1f6", "cf0111c3", "a1e8aac7", 
+        "1a908749", "d44fbd9a", "d0dadecb", "d50ada38", "0339c32a", 
+        "c6913667", "8df9317c", "e0b12b4f", "f79e59b7", "43f5bb3a", 
+        "f2d519ff", "27d9459c", "bf97222c", "15e6fc2a", "0f91fc71", 
+        "9b941525", "fae59361", "ceb69ceb", "c2a86459", "12baa8d1", 
+        "b6c1075e", "e3056a0c", "10d25065", "cb03a442", "e0ec6e0e", 
+        "1698db3b", "4c98a0be", "3278e964", "9f1f9532", "e0d392df", 
+        "d3a0342b", "8971f21e", "1b0a7441", "4ba3348c", "c5be7120", 
+        "c37632d8", "df359f8d", "9b992f2e", "e60b6f47", "0fe3f11d", 
+        "e54cda54", "1edad891", "ce6279cf", "cd3e7e6f", "1618b166", 
+        "fd2c1d05", "848fd2c5", "f6fb2299", "f523f357", "a6327623", 
+        "93a83531", "56cccd02", "acf08162", "5a75ebb5", "6e163697", 
+        "88d273cc", "de966292", "81b949d0", "4c50901b", "71c65614", 
+        "e6c6c7bd", "327a140a", "45e1d006", "c3f27b9a", "c9aa53fd", 
+        "62a80f00", "bb25bfe2", "35bdd2f6", "71126905", "b2040222", 
+        "b6cbcf7c", "cd769c2b", "53113ec0", "1640e3d3", "38abbd60", 
+        "2547adf0", "ba38209c", "f746ce76", "77afa1c5", "20756060", 
+        "85cbfe4e", "8ae88dd8", "7aaaf9b0", "4cf9aa7e", "1948c25c", 
+        "02fb8a8c", "01c36ae4", "d6ebe1f9", "90d4f869", "a65cdea0", 
+        "3f09252d", "c208e69f", "b74e6132", "ce77e25b", "578fdfe3", 
+        "3ac372e6" ] ]; 
+
+def xor(a, b):
+    pass
+
+def key_generation(key):
+    start, n = 0, len(key)
+    end = (start + 8) % n
+    for i in range(18):
+        P[0] = xor(P[0], key[start: end])
+        start = (end + 1) % n
+        end = (start + 8) % n
+    print(P)
+
+def Encrypt(plain_text, key):
+    # 1. Key Generation
+    key_generation(key)
+    return None
+
+
+def main():
+    print("Blowfish Algorithm Implementation")
+    plaint_text = input("Enter PlaintText: ")
+    key = input('Enter Key: ')
+    cipher_text = Encrypt(plaint_text, key)
+
+
+if __name__ == "__main__":
+    main()
+	
+	
+	
+	####################LAB6 BLOWFISH FAST####################
+	
+import sys
+import base64
+from Crypto.Cipher import Blowfish
+from struct import pack
+
+
+class BlowfishCipher(object):
+    def __init__(self, key):
+        self.bs = Blowfish.block_size
+        self.cipher = Blowfish.new(key, Blowfish.MODE_ECB)
+
+    def encrypt(self, plaintext):
+        # padding = self._pad(plaintext)
+        encrypted = self.cipher.encrypt(plaintext)
+        encoded = base64.b64encode(encrypted)
+        return str(encoded, 'utf-8')
+
+    def decrypt(self, raw):
+        decoded = base64.b64decode(raw)
+        decrypted = self.cipher.decrypt(decoded)
+        return str(decrypted, 'utf-8')
+
+    def _pad(self, s):
+        # return s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs)
+        plen = self.bs - len(s) % self.bs
+        padding = [plen] * plen
+        padding = pack('b'*plen, *padding)
+        return padding
+
+    def _unpad(self, s):
+        return s[:-ord(s[len(s)-1:])]
+
+
+if __name__ == '__main__':
+    # key = '`?.F(fHbN6XK|j!t'
+    key = input('Enter Key: ')
+    cipher = BlowfishCipher(key)
+
+    # plaintext = '542#1504891440039'
+    plaintext = input('Enter Plaintext: ')
+    encrypted = cipher.encrypt(plaintext)
+    print('Encrypted: %s' % encrypted)
+    # ciphertext = '5bgJqIqFuT8ACuvT1dz2Bj5kx9ZAIkODHWRzuLlfYV0='
+    # assert encrypted == ciphertext
+
+    decrypted = cipher.decrypt(encrypted)
+    print('Decrypted: %s' % decrypted)
+    # assert decrypted == plaintext
+	
+	
+	
+	
+	##################LAB6 RSA#############################
+	import random
+
+
+"""
+Euclid's algorithm for determining the greatest common divisor
+Use iteration to make it faster for larger integers
+"""
+
+
+def gcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+
+"""
+Euclid's extended algorithm for finding the multiplicative inverse of two numbers
+"""
+
+
+def multiplicative_inverse(a, m):
+    m0 = m
+    y = 0
+    x = 1
+
+    if m == 1:
+        return 0
+
+    while a > 1:
+
+        # q is quotient
+        q = a // m
+
+        t = m
+
+        # m is remainder now, process
+        # same as Euclid's algo
+        m = a % m
+        a = t
+        t = y
+
+        # Update x and y
+        y = x - q * y
+        x = t
+
+    # Make x positive
+    if x < 0:
+        x = x + m0
+
+    return x
+
+
+"""
+Tests to see if a number is prime.
+"""
+
+
+def is_prime(num):
+    if num == 2:
+        return True
+    if num < 2 or num % 2 == 0:
+        return False
+    for n in range(3, int(num ** 0.5) + 2, 2):
+        if num % n == 0:
+            return False
+    return True
+
+
+def generate_keypair(p, q):
+    if not (is_prime(p) and is_prime(q)):
+        raise ValueError("Both numbers must be prime.")
+    elif p == q:
+        raise ValueError("p and q cannot be equal")
+    # n = pq
+    n = p * q
+
+    # Phi is the totient of n
+    phi = (p - 1) * (q - 1)
+
+    # Choose an integer e such that e and phi(n) are coprime
+    e = random.randrange(1, phi)
+
+    # Use Euclid's Algorithm to verify that e and phi(n) are comprime
+    g = gcd(e, phi)
+    while g != 1:
+        e = random.randrange(1, phi)
+        g = gcd(e, phi)
+
+    # Use Extended Euclid's Algorithm to generate the private key
+    d = multiplicative_inverse(e, phi)
+
+    # Return public and private keypair
+    # Public key is (e, n) and private key is (d, n)
+    return ((e, n), (d, n))
+
+
+def encrypt(pk, plaintext):
+    # Unpack the key into it's components
+    key, n = pk
+    # Convert each letter in the plaintext to numbers based on the character using a^b mod m
+    cipher = [(ord(char) ** key) % n for char in plaintext]
+    # Return the array of bytes
+    return cipher
+
+
+def decrypt(pk, ciphertext):
+    # Unpack the key into its components
+    key, n = pk
+    # Generate the plaintext based on the ciphertext and key using a^b mod m
+    plain = [chr((char ** key) % n) for char in ciphertext]
+    # Return the array of bytes as a string
+    return "".join(plain)
+
+
+if __name__ == "__main__":
+    """
+    Detect if the script is being run directly by the user
+    """
+    print("RSA Encrypter/ Decrypter")
+    p = int(input("Enter a prime number: "))
+    q = int(input("Enter another prime number: "))
+    public, private = generate_keypair(p, q)
+    print("Public key:", public)
+    print("Private key:", private)
+    message = input("Enter a message to encrypt: ")
+    encrypted_msg = encrypt(public, message)
+    print("Your encrypted message is:", end=" ")
+    print("".join(map(lambda x: str(x), encrypted_msg)))
+    print("Decrypting message with public key ", public, " . . .")
+    print("Your message is:", end=" ")
+    print(decrypt(private, encrypted_msg))
+	
+	
+	################################LAB7 SHA1#######################
+	#!/usr/bin/python3
+
+
+def sha1(data):
+    bytes = ""
+
+    h0 = 0x67452301
+    h1 = 0xEFCDAB89
+    h2 = 0x98BADCFE
+    h3 = 0x10325476
+    h4 = 0xC3D2E1F0
+
+    for n in range(len(data)):
+        bytes += "{0:08b}".format(ord(data[n]))
+    bits = bytes + "1"
+    pBits = bits
+    # pad until length equals 448 mod 512
+    while len(pBits) % 512 != 448:
+        pBits += "0"
+    # append the original length
+    pBits += "{0:064b}".format(len(bits) - 1)
+
+    def chunks(l, n):
+        return [l[i : i + n] for i in range(0, len(l), n)]
+
+    def rol(n, b):
+        return ((n << b) | (n >> (32 - b))) & 0xFFFFFFFF
+
+    for c in chunks(pBits, 512):
+        words = chunks(c, 32)
+        w = [0] * 80
+        for n in range(0, 16):
+            w[n] = int(words[n], 2)
+        for i in range(16, 80):
+            w[i] = rol((w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16]), 1)
+
+        a = h0
+        b = h1
+        c = h2
+        d = h3
+        e = h4
+
+        # Main loop
+        for i in range(0, 80):
+            if 0 <= i <= 19:
+                f = (b & c) | ((~b) & d)
+                k = 0x5A827999
+            elif 20 <= i <= 39:
+                f = b ^ c ^ d
+                k = 0x6ED9EBA1
+            elif 40 <= i <= 59:
+                f = (b & c) | (b & d) | (c & d)
+                k = 0x8F1BBCDC
+            elif 60 <= i <= 79:
+                f = b ^ c ^ d
+                k = 0xCA62C1D6
+
+            temp = rol(a, 5) + f + e + k + w[i] & 0xFFFFFFFF
+            e = d
+            d = c
+            c = rol(b, 30)
+            b = a
+            a = temp
+
+        h0 = h0 + a & 0xFFFFFFFF
+        h1 = h1 + b & 0xFFFFFFFF
+        h2 = h2 + c & 0xFFFFFFFF
+        h3 = h3 + d & 0xFFFFFFFF
+        h4 = h4 + e & 0xFFFFFFFF
+
+    return "%08x%08x%08x%08x%08x" % (h0, h1, h2, h3, h4)
+
+
+if __name__ == "__main__":
+    msg = input("Enter Message: ")
+    print("\nsha1 hash: {}\n".format(sha1(msg)))
+	
+	
+	
+	
+	
